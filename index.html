@@ -1668,6 +1668,7 @@
 <p>to complete the deployment.</p>
 <h2 id="Language"><a href="#Language" class="headerlink" title="Language"></a>Language</h2><p>If you want to change the blog’s language, just modify language part within section Site in __config.yml file.</p>
 <h2 id="Theme-Settings"><a href="#Theme-Settings" class="headerlink" title="Theme Settings"></a>Theme Settings</h2><p>Scheme, Menu, Tags and sidebar can be changed by changing the relevant variables within __config.yml under theme/next directory.</p>
+<p><strong>NEXT</strong> thme supports Disqus and mathjax, these third party plugins can be turned on in __config.yml, as long as you have set the shortname of Disqus.</p>
 
           
         
@@ -1983,6 +1984,28 @@
   
 
   
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
 
   
 
