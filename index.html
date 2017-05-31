@@ -1559,6 +1559,338 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/31/svm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mike">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Deep Learning Journey">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/05/31/svm/" itemprop="url">
+                  Support Vector Machine
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-05-31T00:00:00+10:00">
+                2016-05-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Assignment-Solution/" itemprop="url" rel="index">
+                    <span itemprop="name">Assignment-Solution</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/05/31/svm/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2016/05/31/svm/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+          
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Multiclass-Support-Vector-Machine-exercise"><a href="#Multiclass-Support-Vector-Machine-exercise" class="headerlink" title="Multiclass Support Vector Machine exercise"></a>Multiclass Support Vector Machine exercise</h1><p><em>Complete and hand in this completed worksheet (including its outputs and any supporting code outside of the worksheet) with your assignment submission. For more details see the <a href="http://vision.stanford.edu/teaching/cs231n/assignments.html" target="_blank" rel="external">assignments page</a> on the course website.</em></p>
+<p>In this exercise you will:</p>
+<ul>
+<li>implement a fully-vectorized <strong>loss function</strong> for the SVM</li>
+<li>implement the fully-vectorized expression for its <strong>analytic gradient</strong></li>
+<li><strong>check your implementation</strong> using numerical gradient</li>
+<li>use a validation set to <strong>tune the learning rate and regularization</strong> strength</li>
+<li><strong>optimize</strong> the loss function with <strong>SGD</strong></li>
+<li><strong>visualize</strong> the final learned weights</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Run some setup code for this notebook.</span></div><div class="line"></div><div class="line"><span class="keyword">import</span> random</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">from</span> cs231n.data_utils <span class="keyword">import</span> load_CIFAR10</div><div class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</div><div class="line"></div><div class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</div><div class="line"></div><div class="line"><span class="comment"># This is a bit of magic to make matplotlib figures appear inline in the</span></div><div class="line"><span class="comment"># notebook rather than in a new window.</span></div><div class="line">%matplotlib inline</div><div class="line">plt.rcParams[<span class="string">'figure.figsize'</span>] = (<span class="number">10.0</span>, <span class="number">8.0</span>) <span class="comment"># set default size of plots</span></div><div class="line">plt.rcParams[<span class="string">'image.interpolation'</span>] = <span class="string">'nearest'</span></div><div class="line">plt.rcParams[<span class="string">'image.cmap'</span>] = <span class="string">'gray'</span></div><div class="line"></div><div class="line"><span class="comment"># Some more magic so that the notebook will reload external python modules;</span></div><div class="line"><span class="comment"># see http://stackoverflow.com/questions/1907993/autoreload-of-modules-in-ipython</span></div><div class="line">%load_ext autoreload</div><div class="line">%autoreload <span class="number">2</span></div></pre></td></tr></table></figure>
+<h2 id="CIFAR-10-Data-Loading-and-Preprocessing"><a href="#CIFAR-10-Data-Loading-and-Preprocessing" class="headerlink" title="CIFAR-10 Data Loading and Preprocessing"></a>CIFAR-10 Data Loading and Preprocessing</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Load the raw CIFAR-10 data.</span></div><div class="line">cifar10_dir = <span class="string">'cs231n/datasets/cifar-10-batches-py'</span></div><div class="line">X_train, y_train, X_test, y_test = load_CIFAR10(cifar10_dir)</div><div class="line"></div><div class="line"><span class="comment"># As a sanity check, we print out the size of the training and test data.</span></div><div class="line">print(<span class="string">'Training data shape: '</span>, X_train.shape)</div><div class="line">print(<span class="string">'Training labels shape: '</span>, y_train.shape)</div><div class="line">print(<span class="string">'Test data shape: '</span>, X_test.shape)</div><div class="line">print(<span class="string">'Test labels shape: '</span>, y_test.shape)</div></pre></td></tr></table></figure>
+<pre><code>Training data shape:  (50000, 32, 32, 3)
+Training labels shape:  (50000,)
+Test data shape:  (10000, 32, 32, 3)
+Test labels shape:  (10000,)
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Visualize some examples from the dataset.</span></div><div class="line"><span class="comment"># We show a few examples of training images from each class.</span></div><div class="line">classes = [<span class="string">'plane'</span>, <span class="string">'car'</span>, <span class="string">'bird'</span>, <span class="string">'cat'</span>, <span class="string">'deer'</span>, <span class="string">'dog'</span>, <span class="string">'frog'</span>, <span class="string">'horse'</span>, <span class="string">'ship'</span>, <span class="string">'truck'</span>]</div><div class="line">num_classes = len(classes)</div><div class="line">samples_per_class = <span class="number">7</span></div><div class="line"><span class="keyword">for</span> y, cls <span class="keyword">in</span> enumerate(classes):</div><div class="line">    idxs = np.flatnonzero(y_train == y)</div><div class="line">    idxs = np.random.choice(idxs, samples_per_class, replace=<span class="keyword">False</span>)</div><div class="line">    <span class="keyword">for</span> i, idx <span class="keyword">in</span> enumerate(idxs):</div><div class="line">        plt_idx = i * num_classes + y + <span class="number">1</span></div><div class="line">        plt.subplot(samples_per_class, num_classes, plt_idx)</div><div class="line">        plt.imshow(X_train[idx].astype(<span class="string">'uint8'</span>))</div><div class="line">        plt.axis(<span class="string">'off'</span>)</div><div class="line">        <span class="keyword">if</span> i == <span class="number">0</span>:</div><div class="line">            plt.title(cls)</div><div class="line">plt.show()</div></pre></td></tr></table></figure>
+<p><img src="images/cs231n/output_4_0.png" alt="png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Split the data into train, val, and test sets. In addition we will</span></div><div class="line"><span class="comment"># create a small development set as a subset of the training data;</span></div><div class="line"><span class="comment"># we can use this for development so our code runs faster.</span></div><div class="line">num_training = <span class="number">49000</span></div><div class="line">num_validation = <span class="number">1000</span></div><div class="line">num_test = <span class="number">1000</span></div><div class="line">num_dev = <span class="number">500</span></div><div class="line"></div><div class="line"><span class="comment"># Our validation set will be num_validation points from the original</span></div><div class="line"><span class="comment"># training set.</span></div><div class="line">mask = range(num_training, num_training + num_validation)</div><div class="line">X_val = X_train[mask]</div><div class="line">y_val = y_train[mask]</div><div class="line"></div><div class="line"><span class="comment"># Our training set will be the first num_train points from the original</span></div><div class="line"><span class="comment"># training set.</span></div><div class="line">mask = range(num_training)</div><div class="line">X_train = X_train[mask]</div><div class="line">y_train = y_train[mask]</div><div class="line"></div><div class="line"><span class="comment"># We will also make a development set, which is a small subset of</span></div><div class="line"><span class="comment"># the training set.</span></div><div class="line">mask = np.random.choice(num_training, num_dev, replace=<span class="keyword">False</span>)</div><div class="line">X_dev = X_train[mask]</div><div class="line">y_dev = y_train[mask]</div><div class="line"></div><div class="line"><span class="comment"># We use the first num_test points of the original test set as our</span></div><div class="line"><span class="comment"># test set.</span></div><div class="line">mask = range(num_test)</div><div class="line">X_test = X_test[mask]</div><div class="line">y_test = y_test[mask]</div><div class="line"></div><div class="line">print(<span class="string">'Train data shape: '</span>, X_train.shape)</div><div class="line">print(<span class="string">'Train labels shape: '</span>, y_train.shape)</div><div class="line">print(<span class="string">'Validation data shape: '</span>, X_val.shape)</div><div class="line">print(<span class="string">'Validation labels shape: '</span>, y_val.shape)</div><div class="line">print(<span class="string">'Test data shape: '</span>, X_test.shape)</div><div class="line">print(<span class="string">'Test labels shape: '</span>, y_test.shape)</div></pre></td></tr></table></figure>
+<pre><code>Train data shape:  (49000, 32, 32, 3)
+Train labels shape:  (49000,)
+Validation data shape:  (1000, 32, 32, 3)
+Validation labels shape:  (1000,)
+Test data shape:  (1000, 32, 32, 3)
+Test labels shape:  (1000,)
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Preprocessing: reshape the image data into rows</span></div><div class="line">X_train = np.reshape(X_train, (X_train.shape[<span class="number">0</span>], <span class="number">-1</span>))</div><div class="line">X_val = np.reshape(X_val, (X_val.shape[<span class="number">0</span>], <span class="number">-1</span>))</div><div class="line">X_test = np.reshape(X_test, (X_test.shape[<span class="number">0</span>], <span class="number">-1</span>))</div><div class="line">X_dev = np.reshape(X_dev, (X_dev.shape[<span class="number">0</span>], <span class="number">-1</span>))</div><div class="line"></div><div class="line"><span class="comment"># As a sanity check, print out the shapes of the data</span></div><div class="line">print(<span class="string">'Training data shape: '</span>, X_train.shape)</div><div class="line">print(<span class="string">'Validation data shape: '</span>, X_val.shape)</div><div class="line">print(<span class="string">'Test data shape: '</span>, X_test.shape)</div><div class="line">print(<span class="string">'dev data shape: '</span>, X_dev.shape)</div></pre></td></tr></table></figure>
+<pre><code>Training data shape:  (49000, 3072)
+Validation data shape:  (1000, 3072)
+Test data shape:  (1000, 3072)
+dev data shape:  (500, 3072)
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Preprocessing: subtract the mean image</span></div><div class="line"><span class="comment"># first: compute the image mean based on the training data</span></div><div class="line">mean_image = np.mean(X_train, axis=<span class="number">0</span>)</div><div class="line">print(mean_image[:<span class="number">10</span>]) <span class="comment"># print a few of the elements</span></div><div class="line">plt.figure(figsize=(<span class="number">4</span>,<span class="number">4</span>))</div><div class="line">plt.imshow(mean_image.reshape((<span class="number">32</span>,<span class="number">32</span>,<span class="number">3</span>)).astype(<span class="string">'uint8'</span>)) <span class="comment"># visualize the mean image</span></div><div class="line">plt.show()</div></pre></td></tr></table></figure>
+<pre><code>[ 130.64189796  135.98173469  132.47391837  130.05569388  135.34804082
+  131.75402041  130.96055102  136.14328571  132.47636735  131.48467347]
+</code></pre><p><img src="images/cs231n/output_7_1.png" alt="png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># second: subtract the mean image from train and test data</span></div><div class="line">X_train -= mean_image</div><div class="line">X_val -= mean_image</div><div class="line">X_test -= mean_image</div><div class="line">X_dev -= mean_image</div></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># third: append the bias dimension of ones (i.e. bias trick) so that our SVM</span></div><div class="line"><span class="comment"># only has to worry about optimizing a single weight matrix W.</span></div><div class="line">X_train = np.hstack([X_train, np.ones((X_train.shape[<span class="number">0</span>], <span class="number">1</span>))])</div><div class="line">X_val = np.hstack([X_val, np.ones((X_val.shape[<span class="number">0</span>], <span class="number">1</span>))])</div><div class="line">X_test = np.hstack([X_test, np.ones((X_test.shape[<span class="number">0</span>], <span class="number">1</span>))])</div><div class="line">X_dev = np.hstack([X_dev, np.ones((X_dev.shape[<span class="number">0</span>], <span class="number">1</span>))])</div><div class="line"></div><div class="line">print(X_train.shape, X_val.shape, X_test.shape, X_dev.shape)</div></pre></td></tr></table></figure>
+<pre><code>(49000, 3073) (1000, 3073) (1000, 3073) (500, 3073)
+</code></pre><h2 id="SVM-Classifier"><a href="#SVM-Classifier" class="headerlink" title="SVM Classifier"></a>SVM Classifier</h2><p>Your code for this section will all be written inside <strong>cs231n/classifiers/linear_svm.py</strong>. </p>
+<p>As you can see, we have prefilled the function <code>compute_loss_naive</code> which uses for loops to evaluate the multiclass SVM loss function. </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Evaluate the naive implementation of the loss we provided for you:</span></div><div class="line"><span class="keyword">from</span> cs231n.classifiers.linear_svm <span class="keyword">import</span> svm_loss_naive</div><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="comment"># generate a random SVM weight matrix of small numbers</span></div><div class="line">W = np.random.randn(<span class="number">3073</span>, <span class="number">10</span>) * <span class="number">0.0001</span> </div><div class="line"></div><div class="line">loss, grad = svm_loss_naive(W, X_dev, y_dev, <span class="number">0.000005</span>)</div><div class="line">print(<span class="string">'loss: %f'</span> % (loss, ))</div></pre></td></tr></table></figure>
+<pre><code>loss: 9.303809
+</code></pre><p>The <code>grad</code> returned from the function above is right now all zero. Derive and implement the gradient for the SVM cost function and implement it inline inside the function <code>svm_loss_naive</code>. You will find it helpful to interleave your new code inside the existing function.</p>
+<p>To check that you have correctly implemented the gradient correctly, you can numerically estimate the gradient of the loss function and compare the numeric estimate to the gradient that you computed. We have provided code that does this for you:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Once you've implemented the gradient, recompute it with the code below</span></div><div class="line"><span class="comment"># and gradient check it with the function we provided for you</span></div><div class="line"></div><div class="line"><span class="comment"># Compute the loss and its gradient at W.</span></div><div class="line">loss, grad = svm_loss_naive(W, X_dev, y_dev, <span class="number">0.0</span>)</div><div class="line"></div><div class="line"><span class="comment"># Numerically compute the gradient along several randomly chosen dimensions, and</span></div><div class="line"><span class="comment"># compare them with your analytically computed gradient. The numbers should match</span></div><div class="line"><span class="comment"># almost exactly along all dimensions.</span></div><div class="line"><span class="keyword">from</span> cs231n.gradient_check <span class="keyword">import</span> grad_check_sparse</div><div class="line">f = <span class="keyword">lambda</span> w: svm_loss_naive(w, X_dev, y_dev, <span class="number">0.0</span>)[<span class="number">0</span>]</div><div class="line">grad_numerical = grad_check_sparse(f, W, grad)</div><div class="line"></div><div class="line"><span class="comment"># do the gradient check once again with regularization turned on</span></div><div class="line"><span class="comment"># you didn't forget the regularization gradient did you?</span></div><div class="line">loss, grad = svm_loss_naive(W, X_dev, y_dev, <span class="number">5e1</span>)</div><div class="line">f = <span class="keyword">lambda</span> w: svm_loss_naive(w, X_dev, y_dev, <span class="number">5e1</span>)[<span class="number">0</span>]</div><div class="line">grad_numerical = grad_check_sparse(f, W, grad)</div></pre></td></tr></table></figure>
+<pre><code>numerical: 16.469521 analytic: 16.506422, relative error: 1.119018e-03
+numerical: 2.777627 analytic: 2.777627, relative error: 4.230158e-11
+numerical: -35.023579 analytic: -35.023579, relative error: 2.770265e-13
+numerical: -17.572130 analytic: -17.572130, relative error: 3.481662e-11
+numerical: 22.379721 analytic: 22.439319, relative error: 1.329747e-03
+numerical: 8.556768 analytic: 8.533278, relative error: 1.374502e-03
+numerical: 4.156731 analytic: 4.156731, relative error: 3.875931e-11
+numerical: -20.577358 analytic: -20.577358, relative error: 3.413460e-11
+numerical: 8.112327 analytic: 8.112327, relative error: 1.668366e-11
+numerical: -9.145706 analytic: -9.145706, relative error: 1.435659e-11
+numerical: -27.741451 analytic: -27.740071, relative error: 2.488863e-05
+numerical: -12.511028 analytic: -12.500920, relative error: 4.041441e-04
+numerical: -16.131307 analytic: -16.128216, relative error: 9.583208e-05
+numerical: 1.130680 analytic: 1.137196, relative error: 2.873276e-03
+numerical: -16.035794 analytic: -16.033600, relative error: 6.842851e-05
+numerical: -7.125878 analytic: -7.124353, relative error: 1.069622e-04
+numerical: 5.995823 analytic: 5.991373, relative error: 3.712099e-04
+numerical: 2.801756 analytic: 2.812069, relative error: 1.836995e-03
+numerical: -7.504935 analytic: -7.503342, relative error: 1.061263e-04
+numerical: -10.071115 analytic: -10.068544, relative error: 1.276397e-04
+</code></pre><h3 id="Inline-Question-1"><a href="#Inline-Question-1" class="headerlink" title="Inline Question 1:"></a>Inline Question 1:</h3><p>It is possible that once in a while a dimension in the gradcheck will not match exactly. What could such a discrepancy be caused by? Is it a reason for concern? What is a simple example in one dimension where a gradient check could fail? <em>Hint: the SVM loss function is not strictly speaking differentiable</em></p>
+<p><strong>Your Answer:</strong> <em>fill this in.</em></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Next implement the function svm_loss_vectorized; for now only compute the loss;</span></div><div class="line"><span class="comment"># we will implement the gradient in a moment.</span></div><div class="line">tic = time.time()</div><div class="line">loss_naive, grad_naive = svm_loss_naive(W, X_dev, y_dev, <span class="number">0.000005</span>)</div><div class="line">toc = time.time()</div><div class="line">print(<span class="string">'Naive loss: %e computed in %fs'</span> % (loss_naive, toc - tic))</div><div class="line"></div><div class="line"><span class="keyword">from</span> cs231n.classifiers.linear_svm <span class="keyword">import</span> svm_loss_vectorized</div><div class="line">tic = time.time()</div><div class="line">loss_vectorized, _ = svm_loss_vectorized(W, X_dev, y_dev, <span class="number">0.000005</span>)</div><div class="line">toc = time.time()</div><div class="line">print(<span class="string">'Vectorized loss: %e computed in %fs'</span> % (loss_vectorized, toc - tic))</div><div class="line"></div><div class="line"><span class="comment"># The losses should match but your vectorized implementation should be much faster.</span></div><div class="line">print(<span class="string">'difference: %f'</span> % (loss_naive - loss_vectorized))</div></pre></td></tr></table></figure>
+<pre><code>Naive loss: 9.303809e+00 computed in 0.088023s
+Vectorized loss: 9.303809e+00 computed in 0.000000s
+difference: -0.000000
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Complete the implementation of svm_loss_vectorized, and compute the gradient</span></div><div class="line"><span class="comment"># of the loss function in a vectorized way.</span></div><div class="line"></div><div class="line"><span class="comment"># The naive implementation and the vectorized implementation should match, but</span></div><div class="line"><span class="comment"># the vectorized version should still be much faster.</span></div><div class="line">tic = time.time()</div><div class="line">_, grad_naive = svm_loss_naive(W, X_dev, y_dev, <span class="number">0.000005</span>)</div><div class="line">toc = time.time()</div><div class="line">print(<span class="string">'Naive loss and gradient: computed in %fs'</span> % (toc - tic))</div><div class="line"></div><div class="line">tic = time.time()</div><div class="line">_, grad_vectorized = svm_loss_vectorized(W, X_dev, y_dev, <span class="number">0.000005</span>)</div><div class="line">toc = time.time()</div><div class="line">print(<span class="string">'Vectorized loss and gradient: computed in %fs'</span> % (toc - tic))</div><div class="line"></div><div class="line"><span class="comment"># The loss is a single number, so it is easy to compare the values computed</span></div><div class="line"><span class="comment"># by the two implementations. The gradient on the other hand is a matrix, so</span></div><div class="line"><span class="comment"># we use the Frobenius norm to compare them.</span></div><div class="line">difference = np.linalg.norm(grad_naive - grad_vectorized, ord=<span class="string">'fro'</span>)</div><div class="line">print(<span class="string">'difference: %f'</span> % difference)</div></pre></td></tr></table></figure>
+<pre><code>Naive loss and gradient: computed in 0.075697s
+Vectorized loss and gradient: computed in 0.015597s
+difference: 0.000000
+</code></pre><h3 id="Stochastic-Gradient-Descent"><a href="#Stochastic-Gradient-Descent" class="headerlink" title="Stochastic Gradient Descent"></a>Stochastic Gradient Descent</h3><p>We now have vectorized and efficient expressions for the loss, the gradient and our gradient matches the numerical gradient. We are therefore ready to do SGD to minimize the loss.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># In the file linear_classifier.py, implement SGD in the function</span></div><div class="line"><span class="comment"># LinearClassifier.train() and then run it with the code below.</span></div><div class="line"><span class="keyword">from</span> cs231n.classifiers <span class="keyword">import</span> LinearSVM</div><div class="line">svm = LinearSVM()</div><div class="line">tic = time.time()</div><div class="line">loss_hist = svm.train(X_train, y_train, learning_rate=<span class="number">1e-7</span>, reg=<span class="number">2.5e4</span>,</div><div class="line">                      num_iters=<span class="number">1500</span>, verbose=<span class="keyword">True</span>)</div><div class="line">toc = time.time()</div><div class="line">print(<span class="string">'That took %fs'</span> % (toc - tic))</div></pre></td></tr></table></figure>
+<pre><code>iteration 0 / 1500: loss 789.257333
+iteration 100 / 1500: loss 474.433663
+iteration 200 / 1500: loss 288.785563
+iteration 300 / 1500: loss 174.999092
+iteration 400 / 1500: loss 107.502575
+iteration 500 / 1500: loss 67.361809
+iteration 600 / 1500: loss 42.640011
+iteration 700 / 1500: loss 27.460573
+iteration 800 / 1500: loss 18.662340
+iteration 900 / 1500: loss 13.202632
+iteration 1000 / 1500: loss 10.091086
+iteration 1100 / 1500: loss 8.209876
+iteration 1200 / 1500: loss 6.719919
+iteration 1300 / 1500: loss 6.445505
+iteration 1400 / 1500: loss 6.394823
+That took 10.856489s
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># A useful debugging strategy is to plot the loss as a function of</span></div><div class="line"><span class="comment"># iteration number:</span></div><div class="line">plt.plot(loss_hist)</div><div class="line">plt.xlabel(<span class="string">'Iteration number'</span>)</div><div class="line">plt.ylabel(<span class="string">'Loss value'</span>)</div><div class="line">plt.show()</div></pre></td></tr></table></figure>
+<p><img src="images/cs231n/output_19_0.png" alt="png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Write the LinearSVM.predict function and evaluate the performance on both the</span></div><div class="line"><span class="comment"># training and validation set</span></div><div class="line">y_train_pred = svm.predict(X_train)</div><div class="line">print(<span class="string">'training accuracy: %f'</span> % (np.mean(y_train == y_train_pred), ))</div><div class="line">y_val_pred = svm.predict(X_val)</div><div class="line">print(<span class="string">'validation accuracy: %f'</span> % (np.mean(y_val == y_val_pred), ))</div></pre></td></tr></table></figure>
+<pre><code>training accuracy: 0.386592
+validation accuracy: 0.396000
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Use the validation set to tune hyperparameters (regularization strength and</span></div><div class="line"><span class="comment"># learning rate). You should experiment with different ranges for the learning</span></div><div class="line"><span class="comment"># rates and regularization strengths; if you are careful you should be able to</span></div><div class="line"><span class="comment"># get a classification accuracy of about 0.4 on the validation set.</span></div><div class="line">learning_rates = [<span class="number">1e-7</span>, <span class="number">5e-5</span>]</div><div class="line">regularization_strengths = [<span class="number">2.5e4</span>, <span class="number">5e4</span>]</div><div class="line"></div><div class="line"><span class="comment"># results is dictionary mapping tuples of the form</span></div><div class="line"><span class="comment"># (learning_rate, regularization_strength) to tuples of the form</span></div><div class="line"><span class="comment"># (training_accuracy, validation_accuracy). The accuracy is simply the fraction</span></div><div class="line"><span class="comment"># of data points that are correctly classified.</span></div><div class="line">results = &#123;&#125;</div><div class="line">best_val = <span class="number">-1</span>   <span class="comment"># The highest validation accuracy that we have seen so far.</span></div><div class="line">best_svm = <span class="keyword">None</span> <span class="comment"># The LinearSVM object that achieved the highest validation rate.</span></div><div class="line"></div><div class="line"><span class="comment">################################################################################</span></div><div class="line"><span class="comment"># <span class="doctag">TODO:</span>                                                                        #</span></div><div class="line"><span class="comment"># Write code that chooses the best hyperparameters by tuning on the validation #</span></div><div class="line"><span class="comment"># set. For each combination of hyperparameters, train a linear SVM on the      #</span></div><div class="line"><span class="comment"># training set, compute its accuracy on the training and validation sets, and  #</span></div><div class="line"><span class="comment"># store these numbers in the results dictionary. In addition, store the best   #</span></div><div class="line"><span class="comment"># validation accuracy in best_val and the LinearSVM object that achieves this  #</span></div><div class="line"><span class="comment"># accuracy in best_svm.                                                        #</span></div><div class="line"><span class="comment">#                                                                              #</span></div><div class="line"><span class="comment"># Hint: You should use a small value for num_iters as you develop your         #</span></div><div class="line"><span class="comment"># validation code so that the SVMs don't take much time to train; once you are #</span></div><div class="line"><span class="comment"># confident that your validation code works, you should rerun the validation   #</span></div><div class="line"><span class="comment"># code with a larger value for num_iters.                                      #</span></div><div class="line"><span class="comment">################################################################################</span></div><div class="line"><span class="keyword">for</span> lr <span class="keyword">in</span> learning_rates:</div><div class="line">    <span class="keyword">for</span> rg <span class="keyword">in</span> regularization_strengths:</div><div class="line">        svm = LinearSVM()</div><div class="line">        svm.train(X_train, y_train, lr, rg, num_iters=<span class="number">1500</span>, verbose=<span class="keyword">True</span>)</div><div class="line">        y_train_pred = svm.predict(X_train)</div><div class="line">        tr_acc = np.mean(y_train == y_train_pred)</div><div class="line">        y_val_pred = svm.predict(X_val)</div><div class="line">        val_acc = np.mean(y_val == y_val_pred)</div><div class="line">        results[(lr, rg)] = (tr_acc, val_acc)</div><div class="line">        <span class="keyword">if</span> ( val_acc &gt; best_val ):</div><div class="line">            best_val = val_acc</div><div class="line">            best_svm = svm</div><div class="line"><span class="comment">################################################################################</span></div><div class="line"><span class="comment">#                              END OF YOUR CODE                                #</span></div><div class="line"><span class="comment">################################################################################</span></div><div class="line">    </div><div class="line"><span class="comment"># Print out results.</span></div><div class="line"><span class="keyword">for</span> lr, reg <span class="keyword">in</span> sorted(results):</div><div class="line">    train_accuracy, val_accuracy = results[(lr, reg)]</div><div class="line">    print(<span class="string">'lr %e reg %e train accuracy: %f val accuracy: %f'</span> % (</div><div class="line">                lr, reg, train_accuracy, val_accuracy))</div><div class="line">    </div><div class="line">print(<span class="string">'best validation accuracy achieved during cross-validation: %f'</span> % best_val)</div></pre></td></tr></table></figure>
+<pre><code>iteration 0 / 1500: loss 789.065547
+iteration 100 / 1500: loss 471.869885
+iteration 200 / 1500: loss 287.571321
+iteration 300 / 1500: loss 174.971822
+iteration 400 / 1500: loss 107.469640
+iteration 500 / 1500: loss 66.592478
+iteration 600 / 1500: loss 42.744517
+iteration 700 / 1500: loss 27.970961
+iteration 800 / 1500: loss 18.784138
+iteration 900 / 1500: loss 13.689656
+iteration 1000 / 1500: loss 10.442484
+iteration 1100 / 1500: loss 8.628084
+iteration 1200 / 1500: loss 7.651019
+iteration 1300 / 1500: loss 7.293839
+iteration 1400 / 1500: loss 5.511511
+iteration 0 / 1500: loss 1550.430617
+iteration 100 / 1500: loss 562.861074
+iteration 200 / 1500: loss 208.088357
+iteration 300 / 1500: loss 79.631242
+iteration 400 / 1500: loss 32.613426
+iteration 500 / 1500: loss 15.668765
+iteration 600 / 1500: loss 9.829078
+iteration 700 / 1500: loss 7.445856
+iteration 800 / 1500: loss 6.173443
+iteration 900 / 1500: loss 6.113765
+iteration 1000 / 1500: loss 5.975592
+iteration 1100 / 1500: loss 5.387827
+iteration 1200 / 1500: loss 5.588608
+iteration 1300 / 1500: loss 5.674135
+iteration 1400 / 1500: loss 5.963768
+iteration 0 / 1500: loss 792.729407
+iteration 100 / 1500: loss 1579.061351
+iteration 200 / 1500: loss 1597.839939
+iteration 300 / 1500: loss 1424.967120
+iteration 400 / 1500: loss 1529.863606
+iteration 500 / 1500: loss 1258.660893
+iteration 600 / 1500: loss 1644.842874
+iteration 700 / 1500: loss 2002.318904
+iteration 800 / 1500: loss 1490.452012
+iteration 900 / 1500: loss 1267.799186
+iteration 1000 / 1500: loss 1549.189446
+iteration 1100 / 1500: loss 1535.982962
+iteration 1200 / 1500: loss 1723.197882
+iteration 1300 / 1500: loss 1408.466663
+iteration 1400 / 1500: loss 1455.262473
+iteration 0 / 1500: loss 1580.196494
+iteration 100 / 1500: loss 949896886740740888349276520281192529920.000000
+iteration 200 / 1500: loss 157010347728952709449921947103514933633509000849464615932473424373283291136.000000
+iteration 300 / 1500: loss 25952552996097017356836306605428792509291628371727204641788179815139964999252799930083323091275200922183008256.000000
+iteration 400 / 1500: loss 4289749158303560641273429876840821741916329739931744152247811985408643225971254099801842360067613937792299693665749721282745823647908289117683712.000000
+iteration 500 / 1500: loss 709061179604702431604478689092232735396837552975623276663328382864987824732940841365409902650479223051854498214810866215640377531869293279580106538877948236994685349250255959359488.000000
+iteration 600 / 1500: loss 117202134173560512521419626315205903596028294657793384350230825370408277624688170535290826414468622274653649482360439361664694381269017661906980637148514938669692585682506296502226877872853086668002787511144519041024.000000
+iteration 700 / 1500: loss 19372574116235231605329654536466951141155031198658397320172851358352873475962630864659477288725487656049983446645961246296694900601894763161226394889968338751317161334426274301451631181274371175411931901011506576866703308660580045706135449878285778944.000000
+iteration 800 / 1500: loss 3202131347994600294784809323742756460620361866728467171214593468739369428195943124081756468395181490557712587636480852301195660384408688885987713393372049979280723972564620455428679171099866829713311076783546671751404167208979248377105801094390703988702367044969105876814753143688527872.000000
+
+
+C:\Users\micha\PycharmProjects\cs231n\cs231n\classifiers\linear_svm.py:84: RuntimeWarning: overflow encountered in double_scalars
+  loss += reg * np.sum(W*W)
+C:\Users\micha\PycharmProjects\cs231n\cs231n\classifiers\linear_svm.py:84: RuntimeWarning: overflow encountered in multiply
+  loss += reg * np.sum(W*W)
+
+
+iteration 900 / 1500: loss inf
+iteration 1000 / 1500: loss inf
+iteration 1100 / 1500: loss inf
+iteration 1200 / 1500: loss inf
+iteration 1300 / 1500: loss inf
+iteration 1400 / 1500: loss inf
+lr 1.000000e-07 reg 2.500000e+04 train accuracy: 0.378000 val accuracy: 0.382000
+lr 1.000000e-07 reg 5.000000e+04 train accuracy: 0.363347 val accuracy: 0.364000
+lr 5.000000e-05 reg 2.500000e+04 train accuracy: 0.175714 val accuracy: 0.155000
+lr 5.000000e-05 reg 5.000000e+04 train accuracy: 0.058531 val accuracy: 0.058000
+best validation accuracy achieved during cross-validation: 0.382000
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Visualize the cross-validation results</span></div><div class="line"><span class="keyword">import</span> math</div><div class="line">x_scatter = [math.log10(x[<span class="number">0</span>]) <span class="keyword">for</span> x <span class="keyword">in</span> results]</div><div class="line">y_scatter = [math.log10(x[<span class="number">1</span>]) <span class="keyword">for</span> x <span class="keyword">in</span> results]</div><div class="line"></div><div class="line"><span class="comment"># plot training accuracy</span></div><div class="line">marker_size = <span class="number">100</span></div><div class="line">colors = [results[x][<span class="number">0</span>] <span class="keyword">for</span> x <span class="keyword">in</span> results]</div><div class="line">plt.subplot(<span class="number">2</span>, <span class="number">1</span>, <span class="number">1</span>)</div><div class="line">plt.scatter(x_scatter, y_scatter, marker_size, c=colors)</div><div class="line">plt.colorbar()</div><div class="line">plt.xlabel(<span class="string">'log learning rate'</span>)</div><div class="line">plt.ylabel(<span class="string">'log regularization strength'</span>)</div><div class="line">plt.title(<span class="string">'CIFAR-10 training accuracy'</span>)</div><div class="line"></div><div class="line"><span class="comment"># plot validation accuracy</span></div><div class="line">colors = [results[x][<span class="number">1</span>] <span class="keyword">for</span> x <span class="keyword">in</span> results] <span class="comment"># default size of markers is 20</span></div><div class="line">plt.subplot(<span class="number">2</span>, <span class="number">1</span>, <span class="number">2</span>)</div><div class="line">plt.scatter(x_scatter, y_scatter, marker_size, c=colors)</div><div class="line">plt.colorbar()</div><div class="line">plt.xlabel(<span class="string">'log learning rate'</span>)</div><div class="line">plt.ylabel(<span class="string">'log regularization strength'</span>)</div><div class="line">plt.title(<span class="string">'CIFAR-10 validation accuracy'</span>)</div><div class="line">plt.show()</div></pre></td></tr></table></figure>
+<p><img src="images/cs231n/output_22_0.png" alt="png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Evaluate the best svm on test set</span></div><div class="line">y_test_pred = best_svm.predict(X_test)</div><div class="line">test_accuracy = np.mean(y_test == y_test_pred)</div><div class="line">print(<span class="string">'linear SVM on raw pixels final test set accuracy: %f'</span> % test_accuracy)</div></pre></td></tr></table></figure>
+<pre><code>linear SVM on raw pixels final test set accuracy: 0.376000
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Visualize the learned weights for each class.</span></div><div class="line"><span class="comment"># Depending on your choice of learning rate and regularization strength, these may</span></div><div class="line"><span class="comment"># or may not be nice to look at.</span></div><div class="line">w = best_svm.W[:<span class="number">-1</span>,:] <span class="comment"># strip out the bias</span></div><div class="line">w = w.reshape(<span class="number">32</span>, <span class="number">32</span>, <span class="number">3</span>, <span class="number">10</span>)</div><div class="line">w_min, w_max = np.min(w), np.max(w)</div><div class="line">classes = [<span class="string">'plane'</span>, <span class="string">'car'</span>, <span class="string">'bird'</span>, <span class="string">'cat'</span>, <span class="string">'deer'</span>, <span class="string">'dog'</span>, <span class="string">'frog'</span>, <span class="string">'horse'</span>, <span class="string">'ship'</span>, <span class="string">'truck'</span>]</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</div><div class="line">    plt.subplot(<span class="number">2</span>, <span class="number">5</span>, i + <span class="number">1</span>)</div><div class="line">      </div><div class="line">    <span class="comment"># Rescale the weights to be between 0 and 255</span></div><div class="line">    wimg = <span class="number">255.0</span> * (w[:, :, :, i].squeeze() - w_min) / (w_max - w_min)</div><div class="line">    plt.imshow(wimg.astype(<span class="string">'uint8'</span>))</div><div class="line">    plt.axis(<span class="string">'off'</span>)</div><div class="line">    plt.title(classes[i])</div></pre></td></tr></table></figure>
+<p><img src="images/cs231n/output_24_0.png" alt="png"></p>
+<h3 id="Inline-question-2"><a href="#Inline-question-2" class="headerlink" title="Inline question 2:"></a>Inline question 2:</h3><p>Describe what your visualized SVM weights look like, and offer a brief explanation for why they look they way that they do.</p>
+<p><strong>Your answer:</strong> <em>fill this in</em></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/19/knn solution/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1907,7 +2239,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -1929,7 +2261,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">tags</span>
               </a>
             </div>
