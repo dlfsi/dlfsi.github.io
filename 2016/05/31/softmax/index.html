@@ -1,0 +1,940 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Linear Classifier, softmax," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="Softmax exerciseComplete and hand in this completed worksheet (including its outputs and any supporting code outside of the worksheet) with your assignment submission. For more details see the assignm">
+<meta name="keywords" content="Linear Classifier, softmax">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Softmax">
+<meta property="og:url" content="http://yoursite.com/2016/05/31/softmax/index.html">
+<meta property="og:site_name" content="Deep Learning Journey">
+<meta property="og:description" content="Softmax exerciseComplete and hand in this completed worksheet (including its outputs and any supporting code outside of the worksheet) with your assignment submission. For more details see the assignm">
+<meta property="og:image" content="http://yoursite.com/images/cs231n/output_10_0.png">
+<meta property="og:updated_time" content="2017-05-31T06:48:01.816Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Softmax">
+<meta name="twitter:description" content="Softmax exerciseComplete and hand in this completed worksheet (including its outputs and any supporting code outside of the worksheet) with your assignment submission. For more details see the assignm">
+<meta name="twitter:image" content="http://yoursite.com/images/cs231n/output_10_0.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/05/31/softmax/"/>
+
+
+
+
+
+  <title>Softmax | Deep Learning Journey</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Deep Learning Journey</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/31/softmax/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mike">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Deep Learning Journey">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Softmax
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-05-31T00:00:00+10:00">
+                2016-05-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/cs231n/" itemprop="url" rel="index">
+                    <span itemprop="name">cs231n</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/05/31/softmax/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2016/05/31/softmax/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+          
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Softmax-exercise"><a href="#Softmax-exercise" class="headerlink" title="Softmax exercise"></a>Softmax exercise</h1><p><em>Complete and hand in this completed worksheet (including its outputs and any supporting code outside of the worksheet) with your assignment submission. For more details see the <a href="http://vision.stanford.edu/teaching/cs231n/assignments.html" target="_blank" rel="external">assignments page</a> on the course website.</em></p>
+<p>This exercise is analogous to the SVM exercise. You will:</p>
+<ul>
+<li>implement a fully-vectorized <strong>loss function</strong> for the Softmax classifier</li>
+<li>implement the fully-vectorized expression for its <strong>analytic gradient</strong></li>
+<li><strong>check your implementation</strong> with numerical gradient</li>
+<li>use a validation set to <strong>tune the learning rate and regularization</strong> strength</li>
+<li><strong>optimize</strong> the loss function with <strong>SGD</strong></li>
+<li><strong>visualize</strong> the final learned weights</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> random</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">from</span> cs231n.data_utils <span class="keyword">import</span> load_CIFAR10</div><div class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</div><div class="line"></div><div class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</div><div class="line"></div><div class="line">%matplotlib inline</div><div class="line">plt.rcParams[<span class="string">'figure.figsize'</span>] = (<span class="number">10.0</span>, <span class="number">8.0</span>) <span class="comment"># set default size of plots</span></div><div class="line">plt.rcParams[<span class="string">'image.interpolation'</span>] = <span class="string">'nearest'</span></div><div class="line">plt.rcParams[<span class="string">'image.cmap'</span>] = <span class="string">'gray'</span></div><div class="line"></div><div class="line"><span class="comment"># for auto-reloading extenrnal modules</span></div><div class="line"><span class="comment"># see http://stackoverflow.com/questions/1907993/autoreload-of-modules-in-ipython</span></div><div class="line">%load_ext autoreload</div><div class="line">%autoreload <span class="number">2</span></div></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_CIFAR10_data</span><span class="params">(num_training=<span class="number">49000</span>, num_validation=<span class="number">1000</span>, num_test=<span class="number">1000</span>, num_dev=<span class="number">500</span>)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    Load the CIFAR-10 dataset from disk and perform preprocessing to prepare</div><div class="line">    it for the linear classifier. These are the same steps as we used for the</div><div class="line">    SVM, but condensed to a single function.  </div><div class="line">    """</div><div class="line">    <span class="comment"># Load the raw CIFAR-10 data</span></div><div class="line">    cifar10_dir = <span class="string">'cs231n/datasets/cifar-10-batches-py'</span></div><div class="line">    X_train, y_train, X_test, y_test = load_CIFAR10(cifar10_dir)</div><div class="line">    </div><div class="line">    <span class="comment"># subsample the data</span></div><div class="line">    mask = list(range(num_training, num_training + num_validation))</div><div class="line">    X_val = X_train[mask]</div><div class="line">    y_val = y_train[mask]</div><div class="line">    mask = list(range(num_training))</div><div class="line">    X_train = X_train[mask]</div><div class="line">    y_train = y_train[mask]</div><div class="line">    mask = list(range(num_test))</div><div class="line">    X_test = X_test[mask]</div><div class="line">    y_test = y_test[mask]</div><div class="line">    mask = np.random.choice(num_training, num_dev, replace=<span class="keyword">False</span>)</div><div class="line">    X_dev = X_train[mask]</div><div class="line">    y_dev = y_train[mask]</div><div class="line">    </div><div class="line">    <span class="comment"># Preprocessing: reshape the image data into rows</span></div><div class="line">    X_train = np.reshape(X_train, (X_train.shape[<span class="number">0</span>], <span class="number">-1</span>))</div><div class="line">    X_val = np.reshape(X_val, (X_val.shape[<span class="number">0</span>], <span class="number">-1</span>))</div><div class="line">    X_test = np.reshape(X_test, (X_test.shape[<span class="number">0</span>], <span class="number">-1</span>))</div><div class="line">    X_dev = np.reshape(X_dev, (X_dev.shape[<span class="number">0</span>], <span class="number">-1</span>))</div><div class="line">    </div><div class="line">    <span class="comment"># Normalize the data: subtract the mean image</span></div><div class="line">    mean_image = np.mean(X_train, axis = <span class="number">0</span>)</div><div class="line">    X_train -= mean_image</div><div class="line">    X_val -= mean_image</div><div class="line">    X_test -= mean_image</div><div class="line">    X_dev -= mean_image</div><div class="line">    </div><div class="line">    <span class="comment"># add bias dimension and transform into columns</span></div><div class="line">    X_train = np.hstack([X_train, np.ones((X_train.shape[<span class="number">0</span>], <span class="number">1</span>))])</div><div class="line">    X_val = np.hstack([X_val, np.ones((X_val.shape[<span class="number">0</span>], <span class="number">1</span>))])</div><div class="line">    X_test = np.hstack([X_test, np.ones((X_test.shape[<span class="number">0</span>], <span class="number">1</span>))])</div><div class="line">    X_dev = np.hstack([X_dev, np.ones((X_dev.shape[<span class="number">0</span>], <span class="number">1</span>))])</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> X_train, y_train, X_val, y_val, X_test, y_test, X_dev, y_dev</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># Invoke the above function to get our data.</span></div><div class="line">X_train, y_train, X_val, y_val, X_test, y_test, X_dev, y_dev = get_CIFAR10_data()</div><div class="line">print(<span class="string">'Train data shape: '</span>, X_train.shape)</div><div class="line">print(<span class="string">'Train labels shape: '</span>, y_train.shape)</div><div class="line">print(<span class="string">'Validation data shape: '</span>, X_val.shape)</div><div class="line">print(<span class="string">'Validation labels shape: '</span>, y_val.shape)</div><div class="line">print(<span class="string">'Test data shape: '</span>, X_test.shape)</div><div class="line">print(<span class="string">'Test labels shape: '</span>, y_test.shape)</div><div class="line">print(<span class="string">'dev data shape: '</span>, X_dev.shape)</div><div class="line">print(<span class="string">'dev labels shape: '</span>, y_dev.shape)</div></pre></td></tr></table></figure>
+<pre><code>Train data shape:  (49000, 3073)
+Train labels shape:  (49000,)
+Validation data shape:  (1000, 3073)
+Validation labels shape:  (1000,)
+Test data shape:  (1000, 3073)
+Test labels shape:  (1000,)
+dev data shape:  (500, 3073)
+dev labels shape:  (500,)
+</code></pre><h2 id="Softmax-Classifier"><a href="#Softmax-Classifier" class="headerlink" title="Softmax Classifier"></a>Softmax Classifier</h2><p>Your code for this section will all be written inside <strong>cs231n/classifiers/softmax.py</strong>. </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># First implement the naive softmax loss function with nested loops.</span></div><div class="line"><span class="comment"># Open the file cs231n/classifiers/softmax.py and implement the</span></div><div class="line"><span class="comment"># softmax_loss_naive function.</span></div><div class="line"></div><div class="line"><span class="keyword">from</span> cs231n.classifiers.softmax <span class="keyword">import</span> softmax_loss_naive</div><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="comment"># Generate a random softmax weight matrix and use it to compute the loss.</span></div><div class="line">W = np.random.randn(<span class="number">3073</span>, <span class="number">10</span>) * <span class="number">0.0001</span></div><div class="line">loss, grad = softmax_loss_naive(W, X_dev, y_dev, <span class="number">0.0</span>)</div><div class="line"></div><div class="line"><span class="comment"># As a rough sanity check, our loss should be something close to -log(0.1).</span></div><div class="line">print(<span class="string">'loss: %f'</span> % loss)</div><div class="line">print(<span class="string">'sanity check: %f'</span> % (-np.log(<span class="number">0.1</span>)))</div></pre></td></tr></table></figure>
+<pre><code>loss: 2.330489
+sanity check: 2.302585
+</code></pre><h2 id="Inline-Question-1"><a href="#Inline-Question-1" class="headerlink" title="Inline Question 1:"></a>Inline Question 1:</h2><p>Why do we expect our loss to be close to -log(0.1)? Explain briefly.**</p>
+<p><strong>Your answer:</strong> <em>Fill this in</em></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Complete the implementation of softmax_loss_naive and implement a (naive)</span></div><div class="line"><span class="comment"># version of the gradient that uses nested loops.</span></div><div class="line">loss, grad = softmax_loss_naive(W, X_dev, y_dev, <span class="number">0.0</span>)</div><div class="line"></div><div class="line"><span class="comment"># As we did for the SVM, use numeric gradient checking as a debugging tool.</span></div><div class="line"><span class="comment"># The numeric gradient should be close to the analytic gradient.</span></div><div class="line"><span class="keyword">from</span> cs231n.gradient_check <span class="keyword">import</span> grad_check_sparse</div><div class="line">f = <span class="keyword">lambda</span> w: softmax_loss_naive(w, X_dev, y_dev, <span class="number">0.0</span>)[<span class="number">0</span>]</div><div class="line">grad_numerical = grad_check_sparse(f, W, grad, <span class="number">10</span>)</div><div class="line"></div><div class="line"><span class="comment"># similar to SVM case, do another gradient check with regularization</span></div><div class="line">loss, grad = softmax_loss_naive(W, X_dev, y_dev, <span class="number">5e1</span>)</div><div class="line">f = <span class="keyword">lambda</span> w: softmax_loss_naive(w, X_dev, y_dev, <span class="number">5e1</span>)[<span class="number">0</span>]</div><div class="line">grad_numerical = grad_check_sparse(f, W, grad, <span class="number">10</span>)</div></pre></td></tr></table></figure>
+<pre><code>numerical: -0.430206 analytic: -0.430207, relative error: 9.910924e-08
+numerical: -5.689070 analytic: -5.689070, relative error: 1.100126e-09
+numerical: 2.871499 analytic: 2.871499, relative error: 2.403480e-08
+numerical: 1.879180 analytic: 1.879180, relative error: 4.245394e-08
+numerical: 0.375562 analytic: 0.375562, relative error: 2.584238e-07
+numerical: 2.789906 analytic: 2.789906, relative error: 3.430911e-08
+numerical: -0.762377 analytic: -0.762377, relative error: 6.132313e-08
+numerical: 1.494098 analytic: 1.494098, relative error: 6.029002e-08
+numerical: 0.795775 analytic: 0.795775, relative error: 1.111533e-07
+numerical: 0.634768 analytic: 0.634768, relative error: 3.589199e-08
+numerical: 4.360692 analytic: 4.360692, relative error: 1.856425e-08
+numerical: 2.198862 analytic: 2.198861, relative error: 4.258158e-08
+numerical: -3.148443 analytic: -3.148443, relative error: 3.860149e-08
+numerical: 0.758602 analytic: 0.758602, relative error: 7.193597e-10
+numerical: 0.368385 analytic: 0.368385, relative error: 3.020633e-07
+numerical: -1.209242 analytic: -1.209242, relative error: 6.118613e-08
+numerical: -1.473819 analytic: -1.473819, relative error: 1.021851e-08
+numerical: -1.211985 analytic: -1.211985, relative error: 5.871190e-08
+numerical: -0.953766 analytic: -0.953766, relative error: 4.267067e-08
+numerical: -0.390789 analytic: -0.390789, relative error: 3.775269e-08
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Now that we have a naive implementation of the softmax loss function and its gradient,</span></div><div class="line"><span class="comment"># implement a vectorized version in softmax_loss_vectorized.</span></div><div class="line"><span class="comment"># The two versions should compute the same results, but the vectorized version should be</span></div><div class="line"><span class="comment"># much faster.</span></div><div class="line">tic = time.time()</div><div class="line">loss_naive, grad_naive = softmax_loss_naive(W, X_dev, y_dev, <span class="number">0.000005</span>)</div><div class="line">toc = time.time()</div><div class="line">print(<span class="string">'naive loss: %e computed in %fs'</span> % (loss_naive, toc - tic))</div><div class="line"></div><div class="line"><span class="keyword">from</span> cs231n.classifiers.softmax <span class="keyword">import</span> softmax_loss_vectorized</div><div class="line">tic = time.time()</div><div class="line">loss_vectorized, grad_vectorized = softmax_loss_vectorized(W, X_dev, y_dev, <span class="number">0.000005</span>)</div><div class="line">toc = time.time()</div><div class="line">print(<span class="string">'vectorized loss: %e computed in %fs'</span> % (loss_vectorized, toc - tic))</div><div class="line"></div><div class="line"><span class="comment"># As we did for the SVM, we use the Frobenius norm to compare the two versions</span></div><div class="line"><span class="comment"># of the gradient.</span></div><div class="line">grad_difference = np.linalg.norm(grad_naive - grad_vectorized, ord=<span class="string">'fro'</span>)</div><div class="line">print(<span class="string">'Loss difference: %f'</span> % np.abs(loss_naive - loss_vectorized))</div><div class="line">print(<span class="string">'Gradient difference: %f'</span> % grad_difference)</div></pre></td></tr></table></figure>
+<pre><code>naive loss: 2.330489e+00 computed in 0.113303s
+vectorized loss: 2.330489e+00 computed in 0.007016s
+Loss difference: 0.000000
+Gradient difference: 0.000000
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Use the validation set to tune hyperparameters (regularization strength and</span></div><div class="line"><span class="comment"># learning rate). You should experiment with different ranges for the learning</span></div><div class="line"><span class="comment"># rates and regularization strengths; if you are careful you should be able to</span></div><div class="line"><span class="comment"># get a classification accuracy of over 0.35 on the validation set.</span></div><div class="line"><span class="keyword">from</span> cs231n.classifiers <span class="keyword">import</span> Softmax</div><div class="line">results = &#123;&#125;</div><div class="line">best_val = <span class="number">-1</span></div><div class="line">best_softmax = <span class="keyword">None</span></div><div class="line">learning_rates = [<span class="number">1e-7</span>, <span class="number">5e-7</span>]</div><div class="line">regularization_strengths = [<span class="number">2.5e4</span>, <span class="number">5e4</span>]</div><div class="line"></div><div class="line"><span class="comment">################################################################################</span></div><div class="line"><span class="comment"># <span class="doctag">TODO:</span>                                                                        #</span></div><div class="line"><span class="comment"># Use the validation set to set the learning rate and regularization strength. #</span></div><div class="line"><span class="comment"># This should be identical to the validation that you did for the SVM; save    #</span></div><div class="line"><span class="comment"># the best trained softmax classifer in best_softmax.                          #</span></div><div class="line"><span class="comment">################################################################################</span></div><div class="line"><span class="keyword">for</span> lr <span class="keyword">in</span> learning_rates:</div><div class="line">    <span class="keyword">for</span> rg <span class="keyword">in</span> regularization_strengths:</div><div class="line">        softmax = Softmax()</div><div class="line">        softmax.train(X_train, y_train, lr, rg, num_iters=<span class="number">1500</span>, verbose=<span class="keyword">True</span>)</div><div class="line">        y_train_pred = softmax.predict(X_train)</div><div class="line">        tr_acc = np.mean(y_train == y_train_pred)</div><div class="line">        y_val_pred = softmax.predict(X_val)</div><div class="line">        val_acc = np.mean(y_val == y_val_pred)</div><div class="line">        results[(lr, rg)] = (tr_acc, val_acc)</div><div class="line">        <span class="keyword">if</span> ( val_acc &gt; best_val ):</div><div class="line">            best_val = val_acc</div><div class="line">            best_softmax = softmax</div><div class="line"><span class="comment">################################################################################</span></div><div class="line"><span class="comment">#                              END OF YOUR CODE                                #</span></div><div class="line"><span class="comment">################################################################################</span></div><div class="line">    </div><div class="line"><span class="comment"># Print out results.</span></div><div class="line"><span class="keyword">for</span> lr, reg <span class="keyword">in</span> sorted(results):</div><div class="line">    train_accuracy, val_accuracy = results[(lr, reg)]</div><div class="line">    print(<span class="string">'lr %e reg %e train accuracy: %f val accuracy: %f'</span> % (</div><div class="line">                lr, reg, train_accuracy, val_accuracy))</div><div class="line">    </div><div class="line">print(<span class="string">'best validation accuracy achieved during cross-validation: %f'</span> % best_val)</div></pre></td></tr></table></figure>
+<pre><code>iteration 0 / 1500: loss 389.747849
+iteration 100 / 1500: loss 235.089069
+iteration 200 / 1500: loss 143.062809
+iteration 300 / 1500: loss 87.288479
+iteration 400 / 1500: loss 53.593246
+iteration 500 / 1500: loss 33.172700
+iteration 600 / 1500: loss 20.833678
+iteration 700 / 1500: loss 13.493512
+iteration 800 / 1500: loss 8.972192
+iteration 900 / 1500: loss 6.240781
+iteration 1000 / 1500: loss 4.588026
+iteration 1100 / 1500: loss 3.486512
+iteration 1200 / 1500: loss 2.954861
+iteration 1300 / 1500: loss 2.541671
+iteration 1400 / 1500: loss 2.394475
+iteration 0 / 1500: loss 779.381103
+iteration 100 / 1500: loss 286.505724
+iteration 200 / 1500: loss 106.075792
+iteration 300 / 1500: loss 40.162142
+iteration 400 / 1500: loss 16.000143
+iteration 500 / 1500: loss 7.152457
+iteration 600 / 1500: loss 3.988233
+iteration 700 / 1500: loss 2.750467
+iteration 800 / 1500: loss 2.313076
+iteration 900 / 1500: loss 2.147366
+iteration 1000 / 1500: loss 2.142060
+iteration 1100 / 1500: loss 2.131901
+iteration 1200 / 1500: loss 2.136516
+iteration 1300 / 1500: loss 2.054144
+iteration 1400 / 1500: loss 2.080421
+iteration 0 / 1500: loss 389.016067
+iteration 100 / 1500: loss 32.768601
+iteration 200 / 1500: loss 4.414723
+iteration 300 / 1500: loss 2.196544
+iteration 400 / 1500: loss 1.969854
+iteration 500 / 1500: loss 1.992281
+iteration 600 / 1500: loss 2.069277
+iteration 700 / 1500: loss 2.071368
+iteration 800 / 1500: loss 2.033401
+iteration 900 / 1500: loss 2.005000
+iteration 1000 / 1500: loss 1.960227
+iteration 1100 / 1500: loss 1.995461
+iteration 1200 / 1500: loss 2.028502
+iteration 1300 / 1500: loss 2.083550
+iteration 1400 / 1500: loss 1.980837
+iteration 0 / 1500: loss 773.086153
+iteration 100 / 1500: loss 6.908684
+iteration 200 / 1500: loss 2.093141
+iteration 300 / 1500: loss 2.065752
+iteration 400 / 1500: loss 2.012093
+iteration 500 / 1500: loss 2.090325
+iteration 600 / 1500: loss 2.042074
+iteration 700 / 1500: loss 2.112060
+iteration 800 / 1500: loss 2.112239
+iteration 900 / 1500: loss 2.142637
+iteration 1000 / 1500: loss 2.103925
+iteration 1100 / 1500: loss 2.069058
+iteration 1200 / 1500: loss 2.054625
+iteration 1300 / 1500: loss 2.058409
+iteration 1400 / 1500: loss 2.077584
+lr 1.000000e-07 reg 2.500000e+04 train accuracy: 0.350612 val accuracy: 0.357000
+lr 1.000000e-07 reg 5.000000e+04 train accuracy: 0.329163 val accuracy: 0.346000
+lr 5.000000e-07 reg 2.500000e+04 train accuracy: 0.343653 val accuracy: 0.345000
+lr 5.000000e-07 reg 5.000000e+04 train accuracy: 0.323449 val accuracy: 0.326000
+best validation accuracy achieved during cross-validation: 0.357000
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># evaluate on test set</span></div><div class="line"><span class="comment"># Evaluate the best softmax on test set</span></div><div class="line">y_test_pred = best_softmax.predict(X_test)</div><div class="line">test_accuracy = np.mean(y_test == y_test_pred)</div><div class="line">print(<span class="string">'softmax on raw pixels final test set accuracy: %f'</span> % (test_accuracy, ))</div></pre></td></tr></table></figure>
+<pre><code>softmax on raw pixels final test set accuracy: 0.359000
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Visualize the learned weights for each class</span></div><div class="line">w = best_softmax.W[:<span class="number">-1</span>,:] <span class="comment"># strip out the bias</span></div><div class="line">w = w.reshape(<span class="number">32</span>, <span class="number">32</span>, <span class="number">3</span>, <span class="number">10</span>)</div><div class="line"></div><div class="line">w_min, w_max = np.min(w), np.max(w)</div><div class="line"></div><div class="line">classes = [<span class="string">'plane'</span>, <span class="string">'car'</span>, <span class="string">'bird'</span>, <span class="string">'cat'</span>, <span class="string">'deer'</span>, <span class="string">'dog'</span>, <span class="string">'frog'</span>, <span class="string">'horse'</span>, <span class="string">'ship'</span>, <span class="string">'truck'</span>]</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</div><div class="line">    plt.subplot(<span class="number">2</span>, <span class="number">5</span>, i + <span class="number">1</span>)</div><div class="line">    </div><div class="line">    <span class="comment"># Rescale the weights to be between 0 and 255</span></div><div class="line">    wimg = <span class="number">255.0</span> * (w[:, :, :, i].squeeze() - w_min) / (w_max - w_min)</div><div class="line">    plt.imshow(wimg.astype(<span class="string">'uint8'</span>))</div><div class="line">    plt.axis(<span class="string">'off'</span>)</div><div class="line">    plt.title(classes[i])</div></pre></td></tr></table></figure>
+<p><img src="/images/cs231n/output_10_0.png" alt="png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"></div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linear-Classifier-softmax/" rel="tag"># Linear Classifier, softmax</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/19/knn solution/" rel="next" title="K-Nearest Neighbor">
+                <i class="fa fa-chevron-left"></i> K-Nearest Neighbor
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/31/svm/" rel="prev" title="Support Vector Machine">
+                Support Vector Machine <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Mike" />
+          <p class="site-author-name" itemprop="name">Mike</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Softmax-exercise"><span class="nav-number">1.</span> <span class="nav-text">Softmax exercise</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Softmax-Classifier"><span class="nav-number">1.1.</span> <span class="nav-text">Softmax Classifier</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Inline-Question-1"><span class="nav-number">1.2.</span> <span class="nav-text">Inline Question 1:</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mike</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://dlfsi.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yoursite.com/2016/05/31/softmax/';
+          this.page.identifier = '2016/05/31/softmax/';
+          this.page.title = 'Softmax';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://dlfsi.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
